@@ -184,42 +184,133 @@
     .progress.warn > div{background:var(--warn)}
     .progress.over > div{background:var(--expense)}
 
-    .settings{
-      background:#fff;
-      border-radius:18px;
-      padding:15px;
-      box-shadow:0 6px 20px rgba(17,38,65,.07);
-    }
-
-    .settings-title{
-      font-weight:800;
-      margin-bottom:11px;
-    }
-
-.checks{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  column-gap:14px;
-  row-gap:14px;
-}
-
-.check-chip{
+.header-actions{
   display:flex;
   align-items:center;
-  gap:7px;
-  padding:2px 0;
-  font-size:15px;
-  cursor:pointer;
-  user-select:none;
-  white-space:nowrap;
+  gap:8px;
 }
 
-.check-chip input{
-  width:22px;
-  height:22px;
+.settings-btn{
+  width:42px;
+  height:42px;
+  border:1px solid rgba(255,255,255,.28);
+  background:rgba(255,255,255,.10);
+  border-radius:50%;
+  color:#fff;
+  font-size:19px;
+  cursor:pointer;
+}
+
+.settings-page{
+  position:fixed;
+  inset:0;
+  z-index:100;
+  background:var(--cream);
+  overflow-y:auto;
+  transform:translateX(100%);
+  transition:transform .25s ease;
+}
+
+.settings-page.show{
+  transform:translateX(0);
+}
+
+.settings-panel{
+  width:min(100%,520px);
+  min-height:100vh;
+  margin:0 auto;
+  padding:24px 16px 44px;
+}
+
+.settings-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+
+.settings-header h2{
+  margin:4px 0 0;
+  font-size:30px;
+}
+
+.settings-eyebrow{
+  color:var(--muted);
+  font-size:12px;
+  letter-spacing:.11em;
+}
+
+.close-settings{
+  width:auto;
+  border:0;
+  border-radius:999px;
+  background:var(--navy);
+  color:#fff;
+  padding:10px 17px;
+  font-size:15px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.settings-description{
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.6;
+  margin-bottom:18px;
+}
+
+.settings-list{
+  background:#fff;
+  border-radius:20px;
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+
+.setting-row{
+  display:grid;
+  grid-template-columns:auto 1fr 125px;
+  align-items:center;
+  gap:12px;
+  padding:15px 16px;
+  border-bottom:1px solid #edf0f4;
+}
+
+.setting-row:last-child{
+  border-bottom:0;
+}
+
+.setting-row input[type="checkbox"]{
+  width:24px;
+  height:24px;
   margin:0;
-  flex-shrink:0;
   accent-color:var(--navy);
+}
+
+.setting-name{
+  font-weight:800;
+}
+
+.budget-input-wrap{
+  position:relative;
+}
+
+.budget-input-wrap::before{
+  content:"NT$";
+  position:absolute;
+  left:11px;
+  top:50%;
+  transform:translateY(-50%);
+  color:var(--muted);
+  font-size:13px;
+}
+
+.budget-input{
+  width:100%;
+  padding:10px 10px 10px 38px;
+  text-align:right;
+  border:1px solid var(--line);
+  border-radius:11px;
+  font-size:15px;
 }
 
     .entry{
@@ -399,7 +490,12 @@
         <div class="eyebrow">MONEY OS</div>
         <h1>本月記帳</h1>
       </div>
-      <div class="month-pill" id="monthPill"></div>
+      <div class="header-actions">
+  <div class="month-pill" id="monthPill"></div>
+  <button type="button" class="settings-btn" id="openSettings" aria-label="開啟設定">
+    ⚙️
+  </button>
+</div>
     </header>
 
     <section class="card">
@@ -430,10 +526,6 @@
 
       <div id="budgetList"></div>
 
-      <div class="settings">
-        <div class="settings-title">關注設定</div>
-        <div class="checks" id="checkList"></div>
-      </div>
     </section>
 
     <section class="section entry">
@@ -475,7 +567,26 @@
       <div class="recent" id="recentList"></div>
     </section>
   </main>
+<section class="settings-page" id="settingsPage">
+  <div class="settings-panel">
+    <div class="settings-header">
+      <div>
+        <div class="settings-eyebrow">MONEY OS</div>
+        <h2>設定</h2>
+      </div>
 
+      <button type="button" class="close-settings" id="closeSettings">
+        完成
+      </button>
+    </div>
+
+    <div class="settings-description">
+      勾選首頁要提醒的項目，並設定每月預算。
+    </div>
+
+    <div class="settings-list" id="checkList"></div>
+  </div>
+</section>
   <div class="toast" id="toast"></div>
 
   <script>
@@ -489,6 +600,7 @@
     const monthKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
     const STORAGE_KEY = `money-os-v3-${monthKey}`;
     const CONTROL_KEY = 'money-os-controls-v3';
+    const BUDGET_KEY = 'money-os-budgets-v3';
 
     const expenseCategories = [
       '飲食','飲料','咖啡','點心','日用','交通','醫療',
@@ -500,15 +612,18 @@
     const quickExpense = ['三餐','點心','飲料','咖啡'];
     const quickIncome = ['薪資','員林','投資'];
 
-    const controls = [
-      {name:'飲料', limit:1000},
-      {name:'咖啡', limit:500},
-      {name:'運動', limit:5000},
-      {name:'保健', limit:3000},
-      {name:'旅遊', limit:30000},
-      {name:'娛樂', limit:2000},
-      {name:'其它', limit:2000}
-    ];
+let controls = JSON.parse(
+  localStorage.getItem(BUDGET_KEY) ||
+  JSON.stringify([
+    {name:'飲料', limit:1000},
+    {name:'咖啡', limit:500},
+    {name:'運動', limit:5000},
+    {name:'保健', limit:3000},
+    {name:'旅遊', limit:30000},
+    {name:'娛樂', limit:2000},
+    {name:'其它', limit:2000}
+  ])
+);
 
     let records = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
     let selectedControls = JSON.parse(localStorage.getItem(CONTROL_KEY) || '["飲料","咖啡","運動","保健"]');
@@ -529,8 +644,16 @@
     }
 
     function saveControls(){
-      localStorage.setItem(CONTROL_KEY, JSON.stringify(selectedControls));
-    }
+  localStorage.setItem(
+    CONTROL_KEY,
+    JSON.stringify(selectedControls)
+  );
+
+  localStorage.setItem(
+    BUDGET_KEY,
+    JSON.stringify(controls)
+  );
+}
 
     function renderCategories(){
       const list = type === 'expense' ? expenseCategories : incomeCategories;
@@ -596,21 +719,57 @@
     }
 
     function renderControls(){
-      el('checkList').innerHTML = controls.map(c => `
-        <label class="check-chip">
-          <input type="checkbox" value="${c.name}" ${selectedControls.includes(c.name) ? 'checked' : ''}>
-          <span>${c.name}</span>
-        </label>
-      `).join('');
+  el('checkList').innerHTML = controls.map((control,index) => `
+    <label class="setting-row">
+      <input
+        type="checkbox"
+        data-index="${index}"
+        ${selectedControls.includes(control.name) ? 'checked' : ''}
+      >
 
-      [...el('checkList').querySelectorAll('input')].forEach(input => {
-        input.addEventListener('change', () => {
-          selectedControls = [...el('checkList').querySelectorAll('input:checked')].map(x => x.value);
-          saveControls();
-          renderBudgets();
-        });
+      <span class="setting-name">${control.name}</span>
+
+      <span class="budget-input-wrap">
+        <input
+          class="budget-input"
+          type="number"
+          inputmode="numeric"
+          min="0"
+          data-budget-index="${index}"
+          value="${control.limit}"
+          aria-label="${control.name}預算"
+        >
+      </span>
+    </label>
+  `).join('');
+
+  el('checkList')
+    .querySelectorAll('input[type="checkbox"]')
+    .forEach(input => {
+      input.addEventListener('change', () => {
+        selectedControls = [
+          ...el('checkList').querySelectorAll(
+            'input[type="checkbox"]:checked'
+          )
+        ].map(item => controls[Number(item.dataset.index)].name);
+
+        saveControls();
+        renderBudgets();
       });
-    }
+    });
+
+  el('checkList')
+    .querySelectorAll('.budget-input')
+    .forEach(input => {
+      input.addEventListener('change', () => {
+        const index = Number(input.dataset.budgetIndex);
+        controls[index].limit = Math.max(0, Number(input.value) || 0);
+
+        saveControls();
+        renderBudgets();
+      });
+    });
+}
 
     function renderBudgets(){
       const active = controls.filter(c => selectedControls.includes(c.name));
@@ -682,6 +841,16 @@
       setTimeout(() => el('toast').classList.remove('show'), 1400);
     }
 
+    el('openSettings').addEventListener('click', () => {
+  el('settingsPage').classList.add('show');
+  document.body.style.overflow = 'hidden';
+});
+
+el('closeSettings').addEventListener('click', () => {
+  el('settingsPage').classList.remove('show');
+  document.body.style.overflow = '';
+  renderBudgets();
+});
     el('expenseBtn').addEventListener('click', () => setType('expense'));
     el('incomeBtn').addEventListener('click', () => setType('income'));
 

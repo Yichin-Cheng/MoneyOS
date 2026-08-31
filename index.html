@@ -10,7 +10,7 @@
 *{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,var(--navy) 0 218px,var(--cream) 218px);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","Microsoft JhengHei",sans-serif}
 .app{width:min(100%,520px);margin:auto;min-height:100vh;padding:18px 16px 44px}
 header{color:#fff;display:flex;justify-content:space-between;align-items:flex-start;padding:4px 2px 16px;gap:12px}
-.eyebrow{font-size:12px;letter-spacing:.11em;opacity:.72}h1{margin:4px 0 0;font-size:28px}.header-actions{display:flex;gap:8px;align-items:center}.month-pill{border:1px solid #ffffff47;background:#ffffff18;border-radius:999px;padding:9px 12px;font-weight:700;white-space:nowrap}.settings-btn{width:42px;height:42px;border:1px solid #ffffff47;background:#ffffff18;border-radius:50%;color:#fff;font-size:19px}
+.eyebrow{font-size:12px;letter-spacing:.11em;opacity:.72}h1{margin:4px 0 0;font-size:28px}.header-actions{display:flex;gap:8px;align-items:center}.month-pill{border:1px solid #ffffff47;background:#ffffff18;border-radius:999px;padding:4px 6px;font-weight:700;white-space:nowrap;display:flex;align-items:center;gap:4px}.month-pill button{border:0;background:transparent;color:#fff;font-size:22px;line-height:1;padding:3px 7px;cursor:pointer}.month-pill span{padding:0 2px}.settings-btn{width:42px;height:42px;border:1px solid #ffffff47;background:#ffffff18;border-radius:50%;color:#fff;font-size:19px}
 .card,.entry{background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:18px}.balance-label,.stat-label,label,.section-head span,.recent-date,.recent-sub{color:var(--muted)}.balance-label{font-size:13px}.balance{font-size:32px;font-weight:800;margin:4px 0 15px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.stat{border-radius:15px;padding:12px 8px;text-align:center}.stat.income{background:var(--softg)}.stat.expense{background:var(--softr)}.stat.invest{background:var(--softp)}.stat-label{font-size:13px}.stat-amount{font-size:18px;font-weight:800;margin-top:4px}.income .stat-amount{color:var(--income)}.expense .stat-amount{color:var(--expense)}.invest .stat-amount{color:var(--invest)}
 .section{margin-top:18px}.section-head{margin:0 2px 10px;display:flex;justify-content:space-between;align-items:center}.section-head h2{margin:0;font-size:18px}.section-head span{font-size:12px}
 .budget-item{background:#fff;border-radius:17px;padding:14px 15px;margin-bottom:10px;box-shadow:0 6px 20px rgba(17,38,65,.07)}.budget-line{display:flex;justify-content:space-between}.budget-name{font-weight:800}.budget-money{color:var(--muted);font-size:14px}.progress{height:9px;margin-top:10px;background:#edf0f4;border-radius:999px;overflow:hidden}.progress div{height:100%;background:var(--navy2)}.progress.warn div{background:var(--warn)}.progress.over div{background:var(--expense)}
@@ -58,23 +58,43 @@ label{display:block;font-size:13px;margin:13px 0 6px}input,select{width:100%;bor
 
 <script>
 const fmt=new Intl.NumberFormat('zh-TW',{style:'currency',currency:'TWD',maximumFractionDigits:0});
-const now=new Date(),monthKey=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-const STORAGE_KEY=`money-os-v3-${monthKey}`,CONTROL_KEY='money-os-controls-v3',BUDGET_KEY='money-os-budgets-v3';
+const now=new Date();
+let viewYear=now.getFullYear(),viewMonth=now.getMonth()+1;
+const CONTROL_KEY='money-os-controls-v3',BUDGET_KEY='money-os-budgets-v3';
+function monthKey(y=viewYear,m=viewMonth){return `${y}-${String(m).padStart(2,'0')}`}
+function storageKey(y=viewYear,m=viewMonth){return `money-os-v3-${monthKey(y,m)}`}
 const expenseCategories=['飲食','飲料','咖啡','點心','日用','交通','醫療','保健','運動','固定','家庭','旅遊','娛樂','精品','其它'];
 const incomeCategories=['主動','被動','員林','其它'],investmentCategories=['投資'];
 const quickExpense=['三餐','點心','飲料','咖啡'],quickIncome=['薪資','員林'];
 let controls=JSON.parse(localStorage.getItem(BUDGET_KEY)||JSON.stringify([{name:'飲料',limit:1000},{name:'咖啡',limit:500},{name:'運動',limit:5000},{name:'保健',limit:3000},{name:'旅遊',limit:30000},{name:'娛樂',limit:2000},{name:'其它',limit:2000}]));
-let records=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+let records=JSON.parse(localStorage.getItem(storageKey())||'[]');
 let selectedControls=JSON.parse(localStorage.getItem(CONTROL_KEY)||'["飲料","咖啡","運動","保健"]');
 let type='expense',editingIndex=null;
 const el=id=>document.getElementById(id);
-el('monthPill').textContent=`${now.getFullYear()} 年 ${now.getMonth()+1} 月`;
+function renderMonthPill(){
+  el('monthPill').innerHTML=`<button type="button" id="prevMonth" aria-label="上個月">‹</button><span>${viewYear} 年 ${viewMonth} 月</span><button type="button" id="nextMonth" aria-label="下個月">›</button>`;
+  el('prevMonth').onclick=()=>changeMonth(-1);
+  el('nextMonth').onclick=()=>changeMonth(1);
+}
+function changeMonth(delta){
+  let d=new Date(viewYear,viewMonth-1+delta,1);
+  viewYear=d.getFullYear(); viewMonth=d.getMonth()+1;
+  records=JSON.parse(localStorage.getItem(storageKey())||'[]');
+  editingIndex=null;
+  renderMonthPill(); resetEntry(); renderAll();
+}
+function loadMonth(y,m){
+  return JSON.parse(localStorage.getItem(storageKey(y,m))||'[]');
+}
+function saveMonth(y,m,data){
+  localStorage.setItem(storageKey(y,m),JSON.stringify(data));
+}
 
 function dateStr(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
 function ts(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d,12).getTime()}
 function recordDate(r){return r.recordDate||dateStr(new Date(r.createdAt))}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-function saveLocal(){localStorage.setItem(STORAGE_KEY,JSON.stringify(records))}
+function saveLocal(){saveMonth(viewYear,viewMonth,records)}
 function saveControls(){localStorage.setItem(CONTROL_KEY,JSON.stringify(selectedControls));localStorage.setItem(BUDGET_KEY,JSON.stringify(controls))}
 
 function setType(next){
@@ -126,7 +146,11 @@ function renderRecent(){
 }
 function renderAll(){renderOverview();renderBudgets();renderRecent()}
 function toast(t){el('toast').textContent=t;el('toast').classList.add('show');setTimeout(()=>el('toast').classList.remove('show'),1200)}
-function resetEntry(){editingIndex=null;el('entryTitle').textContent='快速記錄';el('entryNote').textContent='';el('editActions').classList.remove('show');el('amount').value='';el('item').value='';el('recordDate').value=dateStr();setType('expense')}
+function defaultEntryDate(){
+  if(viewYear===now.getFullYear()&&viewMonth===now.getMonth()+1)return dateStr();
+  return `${viewYear}-${String(viewMonth).padStart(2,'0')}-01`;
+}
+function resetEntry(){editingIndex=null;el('entryTitle').textContent='快速記錄';el('entryNote').textContent='';el('editActions').classList.remove('show');el('amount').value='';el('item').value='';el('recordDate').value=defaultEntryDate();setType('expense')}
 function beginEdit(i){
  const r=records[i];if(!r)return;editingIndex=i;el('entryTitle').textContent='修改紀錄';el('entryNote').textContent='修改後重新儲存';el('editActions').classList.add('show');setType(uiType(r));
  if([...el('category').options].some(o=>o.value===r.category))el('category').value=r.category;
@@ -142,9 +166,31 @@ el('closeSettings').onclick=()=>{el('settingsPage').classList.remove('show');doc
 el('expenseBtn').onclick=()=>setType('expense');el('incomeBtn').onclick=()=>setType('income');el('investmentBtn').onclick=()=>setType('investment');
 el('saveBtn').onclick=()=>{
  if(!(Number(el('amount').value)>0)){toast('請輸入金額');return}
- if(editingIndex===null){records.push(build());toast(type==='investment'?'投資已儲存':type==='income'?'收入已儲存':'支出已儲存')}
- else{records[editingIndex]=build(records[editingIndex]);toast('修改已儲存')}
- saveLocal();renderAll();resetEntry()
+ const rd=el('recordDate').value||defaultEntryDate();
+ const [targetY,targetM]=rd.split('-').map(Number);
+
+ if(editingIndex===null){
+   const rec=build();
+   if(targetY===viewYear&&targetM===viewMonth){
+     records.push(rec); saveLocal();
+   }else{
+     const target=loadMonth(targetY,targetM);
+     target.push(rec); saveMonth(targetY,targetM,target);
+   }
+   toast(type==='investment'?'投資已儲存':type==='income'?'收入已儲存':'支出已儲存');
+ }else{
+   const old=records[editingIndex];
+   const rec=build(old);
+   if(targetY===viewYear&&targetM===viewMonth){
+     records[editingIndex]=rec; saveLocal();
+   }else{
+     records.splice(editingIndex,1); saveLocal();
+     const target=loadMonth(targetY,targetM);
+     target.push(rec); saveMonth(targetY,targetM,target);
+   }
+   toast('修改已儲存');
+ }
+ renderAll();resetEntry()
 };
 el('cancelEdit').onclick=()=>{resetEntry();toast('已取消修改')};
 el('deleteRecord').onclick=()=>{
@@ -154,7 +200,7 @@ el('deleteRecord').onclick=()=>{
  records.splice(editingIndex,1);saveLocal();renderAll();resetEntry();toast('紀錄已刪除')
 };
 
-renderSettings();el('recordDate').value=dateStr();setType('expense');renderAll();
+renderSettings();renderMonthPill();el('recordDate').value=defaultEntryDate();setType('expense');renderAll();
 </script>
 </body>
 </html>

@@ -56,15 +56,15 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:0 20px 25px}
 <body>
 <div class="app">
 <header>
- <div class="eyebrow">MONEY MAP</div><h1>我的資產地圖</h1>
- <div class="hero"><small>手上現金｜郵局＋中信等帳戶</small><div class="num" id="cashTotal">NT$ 0</div></div>
+ <div class="eyebrow">MONEY MAP</div><h1>我的資產</h1>
+ <div class="hero"><small>現金帳戶</small><div class="num" id="cashTotal">NT$ 0</div></div>
  <div class="vtHero">
   <div class="vtTop"><strong>VT 長期資產</strong><span class="vtShares" id="vtShares">44 股</span></div>
   <div class="vtGrid">
    <div class="mini"><small>預估台幣市值</small><b id="vtValue">NT$ 0</b></div>
    <div class="mini"><small>距 100 萬還差</small><b id="vtRemain">NT$ 1,000,000</b></div>
-   <div class="mini"><small>參考股價</small><b id="vtPriceText">US$ 0</b></div>
-   <div class="mini"><small>參考匯率</small><b id="fxText">0</b></div>
+   <div class="mini"><small>股價</small><b id="vtPriceText">US$ 0</b></div>
+   <div class="mini"><small>匯率</small><b id="fxText">0</b></div>
   </div>
   <div class="vtButtons"><button onclick="openVtTrade()">＋ 買入股數</button><button onclick="openVtSettings()">更新股價／匯率</button><button onclick="showVtHistory()">紀錄</button></div>
  </div>
@@ -74,7 +74,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:0 20px 25px}
  <div class="sectionHead"><h2>現金帳戶</h2><button class="textBtn" onclick="openAccount()">＋ 帳戶</button></div>
  <div id="accounts"></div>
 </main>
-<footer>帳戶看現金，VT看股數。兩套資產，分開計算。</footer>
+<footer>帳戶看現金，VT看股數。</footer>
 </div>
 
 <div class="modal" id="txModal"><div class="sheet">

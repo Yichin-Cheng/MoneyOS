@@ -32,12 +32,31 @@ label{display:block;color:var(--muted);font-size:13px;margin:11px 0 5px}input,se
 .history{margin-top:17px;border-top:1px solid var(--line);padding-top:12px}.tx{display:grid;grid-template-columns:72px 1fr auto;gap:7px;padding:9px 0;border-bottom:1px solid #eef0f1;font-size:13px}.tx small{color:var(--muted)}.plus{color:var(--green);font-weight:800}.minus{color:var(--red);font-weight:800}
 .hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:7px}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:0 20px 25px}
+
+/* v3: calm, everyday-use layout */
+.account{padding:16px 15px;background:#e9eef1}
+.accountHead{padding:0 3px 12px}
+.accountName{display:flex;align-items:center;gap:7px}
+.accountTotal{display:grid;grid-template-columns:auto auto;column-gap:7px;align-items:center}
+.accountTotal small{grid-column:1 / 3;text-align:right}
+.accountTotal b{font-size:18px;line-height:1.2}
+.tinyPlus,.dots{border:0;background:transparent;color:var(--navy2);font-weight:850;line-height:1;padding:4px 6px}
+.tinyPlus{font-size:20px}
+.dots{font-size:20px;color:#82909a}
+.bucket{padding:0 14px;margin-bottom:7px;min-height:62px;display:flex;align-items:center}
+.bucket.clickable{cursor:pointer}
+.bucketTop{width:100%;align-items:center}
+.bucketName{font-size:16px}
+.bucketRight{display:flex;align-items:center;gap:7px}
+.bucketAmount{font-size:17px;font-weight:800;min-width:88px;text-align:right;font-variant-numeric:tabular-nums}
+.actions{display:none}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
- <div class="eyebrow">MONEY MAP</div><h1>我的資產</h1>
+ <div class="eyebrow">MONEY MAP</div><h1>我的資產地圖</h1>
  <div class="hero"><small>手上現金｜郵局＋中信等帳戶</small><div class="num" id="cashTotal">NT$ 0</div></div>
  <div class="vtHero">
   <div class="vtTop"><strong>VT 長期資產</strong><span class="vtShares" id="vtShares">44 股</span></div>
@@ -116,7 +135,7 @@ let data=JSON.parse(localStorage.getItem(KEY)||'null')||{
  tx:[],
  vt:{shares:44,price:0,fx:0,goal:1000000,history:[]}
 };
-function money(n){return 'NT$ '+Math.round(Number(n)||0).toLocaleString('zh-TW')}
+function money(n){return Math.round(Number(n)||0).toLocaleString('zh-TW')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function today(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
@@ -125,8 +144,8 @@ function render(){
  data.accounts.forEach(a=>{
    let at=a.buckets.reduce((s,b)=>s+(Number(b.balance)||0),0);cash+=at;
    let box=document.createElement('section');box.className='account';
-   box.innerHTML=`<div class="accountHead"><div><div class="accountName">${esc(a.name)}</div><button class="textBtn" onclick="openBucket(null,'${a.id}')">＋ 新增用途</button></div><div class="accountTotal"><small>帳戶合計</small><b>${money(at)}</b><br><button class="textBtn" onclick="openAccount('${a.id}')">設定</button></div></div>
-   <div>${a.buckets.length?a.buckets.map(b=>`<div class="bucket"><div class="bucketTop"><div class="bucketName">${esc(b.name)}</div><div class="bucketAmount">${money(b.balance)}</div></div><div class="actions"><button onclick="openTx('${b.id}')">異動</button><button onclick="showDetail('${b.id}')">紀錄</button><button onclick="openBucket('${b.id}','${a.id}')">設定</button></div></div>`).join(''):'<div class="empty">這個帳戶還沒有資金用途</div>'}</div>`;
+   box.innerHTML=`<div class="accountHead"><div class="accountName">${esc(a.name)} <button class="tinyPlus" onclick="event.stopPropagation();openBucket(null,'${a.id}')" aria-label="新增用途">＋</button></div><div class="accountTotal"><small>帳戶合計</small><b>${money(at)}</b><button class="dots" onclick="openAccount('${a.id}')" aria-label="帳戶設定">⋯</button></div></div>
+   <div>${a.buckets.length?a.buckets.map(b=>`<div class="bucket clickable" onclick="openTx('${b.id}')"><div class="bucketTop"><div class="bucketName">${esc(b.name)}</div><div class="bucketRight"><div class="bucketAmount">${money(b.balance)}</div><button class="dots" onclick="event.stopPropagation();openBucket('${b.id}','${a.id}')" aria-label="設定">⋯</button></div></div></div>`).join(''):'<div class="empty">還沒有資金用途</div>'}</div>`;
    wrap.appendChild(box);
  });
  document.getElementById('cashTotal').textContent=money(cash);

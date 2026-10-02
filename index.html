@@ -2,216 +2,157 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#17324d">
-<title>Money Map｜我的資金地圖</title>
+<title>Money Map｜我的資產</title>
 <style>
-:root{
-  --navy:#17324d; --navy2:#254d70; --cream:#f7f4ee; --card:#fff;
-  --text:#1f2a35; --muted:#78838d; --line:#e4e7ea; --soft:#eef3f7;
-  --green:#2d7865; --red:#b85c5c; --gold:#b58a3a;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--cream);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
-.app{max-width:720px;margin:auto;min-height:100vh;padding-bottom:100px}
-header{background:var(--navy);color:white;padding:28px 20px 24px;border-radius:0 0 28px 28px}
-.eyebrow{font-size:13px;opacity:.72;letter-spacing:.12em}
-h1{margin:6px 0 18px;font-size:27px}
-.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.summary .box{background:rgba(255,255,255,.1);padding:13px;border-radius:16px}
-.summary small{display:block;opacity:.72;margin-bottom:5px}
-.summary strong{font-size:20px}
-main{padding:18px}
-.section-title{display:flex;justify-content:space-between;align-items:center;margin:8px 2px 12px}
-.section-title h2{font-size:18px;margin:0}
-button{font:inherit}
-.linkbtn{border:0;background:none;color:var(--navy2);font-weight:700;padding:5px}
-.bucket{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;margin-bottom:12px;box-shadow:0 5px 18px rgba(25,45,65,.04)}
-.bucket-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
-.bucket-name{font-weight:800;font-size:17px}
-.bucket-account{font-size:12px;color:var(--muted);margin-top:3px}
-.bucket-amount{font-size:21px;font-weight:800;text-align:right}
-.goal{margin-top:13px}
-.goal-line{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
-.bar{height:8px;background:#edf0f2;border-radius:99px;overflow:hidden}
-.bar i{display:block;height:100%;background:var(--navy2);border-radius:99px}
-.actions{display:flex;gap:8px;margin-top:14px}
-.actions button{flex:1;border:0;border-radius:12px;padding:10px;background:var(--soft);color:var(--navy);font-weight:750}
-.fab{position:fixed;right:max(20px,calc((100vw - 720px)/2 + 20px));bottom:24px;border:0;border-radius:18px;background:var(--navy);color:#fff;padding:15px 20px;font-weight:800;box-shadow:0 8px 25px rgba(23,50,77,.25)}
-.empty{text-align:center;color:var(--muted);padding:34px 10px}
-.modal{display:none;position:fixed;inset:0;background:rgba(15,25,35,.45);z-index:10;padding:20px;align-items:flex-end;justify-content:center}
-.modal.show{display:flex}
-.sheet{background:white;width:min(100%,680px);border-radius:24px;padding:20px;max-height:90vh;overflow:auto}
-.sheet h3{margin:0 0 16px}
-label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}
-input,select{width:100%;border:1px solid #d9dfe4;border-radius:13px;padding:12px;font:inherit;background:#fff}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.primary{width:100%;border:0;background:var(--navy);color:#fff;border-radius:14px;padding:13px;font-weight:800;margin-top:16px}
-.secondary{width:100%;border:0;background:#eef1f3;color:var(--text);border-radius:14px;padding:12px;font-weight:700;margin-top:8px}
-.danger{color:var(--red)}
-.history{margin-top:18px;border-top:1px solid var(--line);padding-top:12px}
-.tx{display:grid;grid-template-columns:70px 1fr auto;gap:8px;padding:10px 0;border-bottom:1px solid #f0f1f2;font-size:14px}
-.tx small{color:var(--muted)}
-.plus{color:var(--green);font-weight:800}.minus{color:var(--red);font-weight:800}
-.note{font-size:12px;color:var(--muted);margin-top:4px}
-footer{text-align:center;color:var(--muted);font-size:12px;padding:4px 20px 30px}
+:root{--navy:#17324d;--navy2:#315d7d;--cream:#f6f3ed;--card:#fff;--text:#202a33;--muted:#77818a;--line:#e1e5e8;--soft:#eef3f6;--green:#28745e;--red:#b35656}
+*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
+.app{max-width:720px;margin:auto;min-height:100vh;padding-bottom:45px}
+header{background:var(--navy);color:#fff;padding:25px 18px 22px;border-radius:0 0 26px 26px}
+.eyebrow{font-size:12px;opacity:.7;letter-spacing:.13em}h1{font-size:25px;margin:5px 0 18px}
+.hero{background:rgba(255,255,255,.1);border-radius:18px;padding:15px;margin-bottom:10px}
+.hero small{opacity:.7}.hero .num{font-size:28px;font-weight:850;margin-top:4px}
+.vtHero{background:#fff;color:var(--text);border-radius:18px;padding:15px}
+.vtTop{display:flex;justify-content:space-between;gap:10px}.vtTop strong{font-size:17px}.vtShares{color:var(--navy2);font-weight:800}
+.vtGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.mini{background:var(--soft);padding:10px;border-radius:12px}.mini small{display:block;color:var(--muted);font-size:11px}.mini b{display:block;margin-top:3px;font-size:15px}
+.vtButtons{display:flex;gap:8px;margin-top:11px}.vtButtons button{flex:1;border:0;border-radius:11px;padding:9px;background:var(--soft);font-weight:750;color:var(--navy)}
+main{padding:18px}.sectionHead{display:flex;justify-content:space-between;align-items:center;margin:5px 1px 12px}.sectionHead h2{font-size:18px;margin:0}.textBtn{border:0;background:none;color:var(--navy2);font-weight:800}
+.account{background:#e9eef1;border-radius:22px;padding:13px;margin-bottom:17px}
+.accountHead{display:flex;justify-content:space-between;align-items:center;padding:3px 4px 11px}.accountName{font-size:19px;font-weight:850}.accountTotal{text-align:right}.accountTotal small{display:block;color:var(--muted);font-size:11px}.accountTotal b{font-size:18px}
+.bucket{background:var(--card);border-radius:16px;padding:14px;margin-bottom:9px;border:1px solid rgba(0,0,0,.04)}
+.bucket:last-child{margin-bottom:0}.bucketTop{display:flex;justify-content:space-between;gap:10px}.bucketName{font-weight:800}.bucketAmount{font-size:19px;font-weight:850}
+.actions{display:flex;gap:7px;margin-top:11px}.actions button{flex:1;border:0;border-radius:10px;padding:8px;background:var(--soft);color:var(--navy);font-weight:700;font-size:13px}
+.empty{color:var(--muted);text-align:center;padding:20px 8px;font-size:14px}
+.modal{display:none;position:fixed;inset:0;background:rgba(10,20,30,.46);z-index:20;padding:18px;align-items:flex-end;justify-content:center}.modal.show{display:flex}
+.sheet{width:min(100%,680px);background:#fff;border-radius:23px;padding:19px;max-height:90vh;overflow:auto}.sheet h3{margin:0 0 15px}
+label{display:block;color:var(--muted);font-size:13px;margin:11px 0 5px}input,select{width:100%;padding:12px;border:1px solid #d8dde1;border-radius:12px;background:#fff;font:inherit}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.primary,.secondary{width:100%;border:0;border-radius:13px;padding:12px;font-weight:800;margin-top:13px}.primary{background:var(--navy);color:#fff}.secondary{background:var(--soft);color:var(--text);margin-top:7px}.danger{color:var(--red)}
+.history{margin-top:17px;border-top:1px solid var(--line);padding-top:12px}.tx{display:grid;grid-template-columns:72px 1fr auto;gap:7px;padding:9px 0;border-bottom:1px solid #eef0f1;font-size:13px}.tx small{color:var(--muted)}.plus{color:var(--green);font-weight:800}.minus{color:var(--red);font-weight:800}
+.hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:7px}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:0 20px 25px}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
-  <div class="eyebrow">MONEY MAP</div>
-  <h1>我的資金地圖</h1>
-  <div class="summary">
-    <div class="box"><small>資金桶合計</small><strong id="total">NT$ 0</strong></div>
-    <div class="box"><small>距 VT 100萬</small><strong id="vtRemain">尚未設定</strong></div>
+ <div class="eyebrow">MONEY MAP</div><h1>我的資產</h1>
+ <div class="hero"><small>手上現金｜郵局＋中信等帳戶</small><div class="num" id="cashTotal">NT$ 0</div></div>
+ <div class="vtHero">
+  <div class="vtTop"><strong>VT 長期資產</strong><span class="vtShares" id="vtShares">44 股</span></div>
+  <div class="vtGrid">
+   <div class="mini"><small>預估台幣市值</small><b id="vtValue">NT$ 0</b></div>
+   <div class="mini"><small>距 100 萬還差</small><b id="vtRemain">NT$ 1,000,000</b></div>
+   <div class="mini"><small>參考股價</small><b id="vtPriceText">US$ 0</b></div>
+   <div class="mini"><small>參考匯率</small><b id="fxText">0</b></div>
   </div>
+  <div class="vtButtons"><button onclick="openVtTrade()">＋ 買入股數</button><button onclick="openVtSettings()">更新股價／匯率</button><button onclick="showVtHistory()">紀錄</button></div>
+ </div>
 </header>
 
 <main>
-  <div class="section-title"><h2>我的資金桶</h2><button class="linkbtn" onclick="openBucket()">＋ 新增</button></div>
-  <div id="bucketList"></div>
+ <div class="sectionHead"><h2>現金帳戶</h2><button class="textBtn" onclick="openAccount()">＋ 帳戶</button></div>
+ <div id="accounts"></div>
 </main>
-<footer>不記每杯咖啡，只看錢現在在哪裡、準備做什麼。</footer>
+<footer>帳戶看現金，VT看股數。兩套資產，分開計算。</footer>
 </div>
 
-<button class="fab" onclick="openTx()">＋ 資金異動</button>
+<div class="modal" id="txModal"><div class="sheet">
+ <h3 id="txTitle">資金異動</h3>
+ <div class="row"><div><label>日期</label><input type="date" id="txDate"></div><div><label>動作</label><select id="txType"><option value="in">投入 ＋</option><option value="out">取用 −</option></select></div></div>
+ <label>金額</label><input type="number" id="txAmount" inputmode="numeric" placeholder="例如 10000">
+ <label>備註（可不填）</label><input id="txNote" placeholder="例如：10月投入">
+ <input type="hidden" id="txBucketId">
+ <button class="primary" onclick="saveTx()">儲存</button><button class="secondary" onclick="closeM('txModal')">取消</button>
+</div></div>
 
-<div class="modal" id="txModal">
- <div class="sheet">
-  <h3>資金異動</h3>
-  <div class="row">
-   <div><label>日期</label><input type="date" id="txDate"></div>
-   <div><label>動作</label><select id="txType"><option value="in">投入 ＋</option><option value="out">取用 −</option></select></div>
-  </div>
-  <label>資金桶</label><select id="txBucket"></select>
-  <label>金額</label><input type="number" id="txAmount" inputmode="numeric" placeholder="例如 10000">
-  <label>備註（可不填）</label><input id="txNote" placeholder="例如：10月旅遊基金">
-  <button class="primary" onclick="saveTx()">儲存</button>
-  <button class="secondary" onclick="closeModal('txModal')">取消</button>
- </div>
-</div>
+<div class="modal" id="accountModal"><div class="sheet">
+ <h3 id="accountTitle">新增帳戶</h3><input type="hidden" id="accountId">
+ <label>帳戶名稱</label><input id="accountName" placeholder="例如：郵局">
+ <button class="primary" onclick="saveAccount()">儲存</button><button class="secondary danger" id="deleteAccountBtn" style="display:none" onclick="deleteAccount()">刪除帳戶</button><button class="secondary" onclick="closeM('accountModal')">取消</button>
+</div></div>
 
-<div class="modal" id="bucketModal">
- <div class="sheet">
-  <h3 id="bucketTitle">新增資金桶</h3>
-  <input type="hidden" id="bucketId">
-  <label>名稱</label><input id="bucketName" placeholder="例如：旅遊基金">
-  <label>放在哪裡（可不填）</label><input id="bucketAccount" placeholder="例如：郵局、中信、券商">
-  <div class="row">
-   <div><label>目前金額</label><input type="number" id="bucketBalance" inputmode="numeric" placeholder="55000"></div>
-   <div><label>目標金額（可不填）</label><input type="number" id="bucketGoal" inputmode="numeric" placeholder="100000"></div>
-  </div>
-  <button class="primary" onclick="saveBucket()">儲存</button>
-  <button class="secondary danger" id="deleteBtn" style="display:none" onclick="deleteBucket()">刪除這個資金桶</button>
-  <button class="secondary" onclick="closeModal('bucketModal')">取消</button>
- </div>
-</div>
+<div class="modal" id="bucketModal"><div class="sheet">
+ <h3 id="bucketTitle">新增資金桶</h3><input type="hidden" id="bucketId"><input type="hidden" id="bucketAccountId">
+ <label>名稱</label><input id="bucketName" placeholder="例如：旅遊基金">
+ <label>目前金額</label><input type="number" id="bucketBalance" inputmode="numeric" placeholder="55000">
+ <button class="primary" onclick="saveBucket()">儲存</button><button class="secondary danger" id="deleteBucketBtn" style="display:none" onclick="deleteBucket()">刪除資金桶</button><button class="secondary" onclick="closeM('bucketModal')">取消</button>
+</div></div>
 
-<div class="modal" id="detailModal">
- <div class="sheet">
-  <h3 id="detailTitle"></h3>
-  <div id="detailInfo"></div>
-  <div class="history"><strong>異動紀錄</strong><div id="historyList"></div></div>
-  <button class="secondary" onclick="closeModal('detailModal')">關閉</button>
- </div>
-</div>
+<div class="modal" id="detailModal"><div class="sheet">
+ <h3 id="detailTitle"></h3><div id="detailBalance"></div><div class="history"><strong>異動紀錄</strong><div id="detailHistory"></div></div><button class="secondary" onclick="closeM('detailModal')">關閉</button>
+</div></div>
+
+<div class="modal" id="vtTradeModal"><div class="sheet">
+ <h3>VT 股數異動</h3>
+ <div class="row"><div><label>日期</label><input type="date" id="vtDate"></div><div><label>動作</label><select id="vtType"><option value="buy">買入 ＋</option><option value="sell">賣出 −</option></select></div></div>
+ <label>股數</label><input type="number" id="vtQty" step="0.001" inputmode="decimal" placeholder="例如 2">
+ <label>備註（可不填）</label><input id="vtNote" placeholder="例如：10月加碼">
+ <div class="hint">不記台幣投入成本與交易費，只增加或減少實際持有股數。</div>
+ <button class="primary" onclick="saveVtTrade()">儲存</button><button class="secondary" onclick="closeM('vtTradeModal')">取消</button>
+</div></div>
+
+<div class="modal" id="vtSettingsModal"><div class="sheet">
+ <h3>VT 估值設定</h3>
+ <label>目前持有股數</label><input type="number" id="vtSetShares" step="0.001" inputmode="decimal">
+ <label>參考 VT 股價（美元）</label><input type="number" id="vtSetPrice" step="0.01" inputmode="decimal" placeholder="例如 140.50">
+ <label>美元／台幣參考匯率</label><input type="number" id="vtSetFx" step="0.001" inputmode="decimal" placeholder="例如 30.50">
+ <div class="hint">預估市值＝持有股數 × 參考股價 × 匯率。這裡只用來看目前大約值多少、離100萬還差多少。</div>
+ <button class="primary" onclick="saveVtSettings()">更新估值</button><button class="secondary" onclick="closeM('vtSettingsModal')">取消</button>
+</div></div>
+
+<div class="modal" id="vtHistoryModal"><div class="sheet">
+ <h3>VT 股數紀錄</h3><div id="vtHistory"></div><button class="secondary" onclick="closeM('vtHistoryModal')">關閉</button>
+</div></div>
 
 <script>
-const KEY='moneyMap_v1';
-let data=JSON.parse(localStorage.getItem(KEY)||'null') || {
- buckets:[
-  {id:'deposit',name:'郵局定存',account:'郵局',balance:500000,goal:null},
-  {id:'cash',name:'中信現金',account:'中信',balance:400000,goal:null},
-  {id:'travel',name:'旅遊基金',account:'郵局',balance:55000,goal:null},
-  {id:'pocket',name:'零花錢',account:'',balance:122000,goal:null},
-  {id:'bra',name:'運動內衣基金',account:'',balance:0,goal:null},
-  {id:'vt',name:'VT',account:'美股',balance:0,goal:1000000}
- ], tx:[]
+const KEY='moneyMap_v2';
+let data=JSON.parse(localStorage.getItem(KEY)||'null')||{
+ accounts:[
+  {id:'post',name:'郵局',buckets:[{id:'deposit',name:'定存',balance:500000},{id:'travel',name:'旅遊基金',balance:55000}]},
+  {id:'ctbc',name:'中信',buckets:[{id:'cash',name:'現金',balance:500000},{id:'startup',name:'創業基金',balance:55000},{id:'free',name:'自由',balance:122000}]}
+ ],
+ tx:[],
+ vt:{shares:44,price:0,fx:0,goal:1000000,history:[]}
 };
-function money(n){return 'NT$ '+Math.round(n||0).toLocaleString('zh-TW')}
+function money(n){return 'NT$ '+Math.round(Number(n)||0).toLocaleString('zh-TW')}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function today(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
 function render(){
- const list=document.getElementById('bucketList');
- list.innerHTML='';
- let total=0;
- data.buckets.forEach(b=>{
-  total+=Number(b.balance)||0;
-  let pct=b.goal?Math.min(100,(b.balance/b.goal)*100):0;
-  const el=document.createElement('div'); el.className='bucket';
-  el.innerHTML=`<div class="bucket-top">
-    <div><div class="bucket-name">${esc(b.name)}</div><div class="bucket-account">${b.account?esc(b.account):'未指定帳戶'}</div></div>
-    <div class="bucket-amount">${money(b.balance)}</div>
-   </div>
-   ${b.goal?`<div class="goal"><div class="goal-line"><span>目標 ${money(b.goal)}</span><span>${pct.toFixed(0)}%</span></div><div class="bar"><i style="width:${pct}%"></i></div></div>`:''}
-   <div class="actions"><button onclick="openTx('${b.id}')">＋/− 異動</button><button onclick="showDetail('${b.id}')">紀錄</button><button onclick="openBucket('${b.id}')">設定</button></div>`;
-  list.appendChild(el);
+ let cash=0,wrap=document.getElementById('accounts');wrap.innerHTML='';
+ data.accounts.forEach(a=>{
+   let at=a.buckets.reduce((s,b)=>s+(Number(b.balance)||0),0);cash+=at;
+   let box=document.createElement('section');box.className='account';
+   box.innerHTML=`<div class="accountHead"><div><div class="accountName">${esc(a.name)}</div><button class="textBtn" onclick="openBucket(null,'${a.id}')">＋ 新增用途</button></div><div class="accountTotal"><small>帳戶合計</small><b>${money(at)}</b><br><button class="textBtn" onclick="openAccount('${a.id}')">設定</button></div></div>
+   <div>${a.buckets.length?a.buckets.map(b=>`<div class="bucket"><div class="bucketTop"><div class="bucketName">${esc(b.name)}</div><div class="bucketAmount">${money(b.balance)}</div></div><div class="actions"><button onclick="openTx('${b.id}')">異動</button><button onclick="showDetail('${b.id}')">紀錄</button><button onclick="openBucket('${b.id}','${a.id}')">設定</button></div></div>`).join(''):'<div class="empty">這個帳戶還沒有資金用途</div>'}</div>`;
+   wrap.appendChild(box);
  });
- if(!data.buckets.length) list.innerHTML='<div class="empty">還沒有資金桶，先新增一個吧。</div>';
- document.getElementById('total').textContent=money(total);
- const vt=data.buckets.find(b=>b.id==='vt'||b.name.toUpperCase()==='VT');
- document.getElementById('vtRemain').textContent=vt&&vt.goal?money(Math.max(0,vt.goal-vt.balance)):'尚未設定';
- refreshSelect();
+ document.getElementById('cashTotal').textContent=money(cash);
+ let v=data.vt, value=(Number(v.shares)||0)*(Number(v.price)||0)*(Number(v.fx)||0);
+ document.getElementById('vtShares').textContent=(Number(v.shares)||0).toLocaleString('zh-TW',{maximumFractionDigits:3})+' 股';
+ document.getElementById('vtValue').textContent=money(value);
+ document.getElementById('vtRemain').textContent=money(Math.max(0,(v.goal||1000000)-value));
+ document.getElementById('vtPriceText').textContent='US$ '+(Number(v.price)||0).toLocaleString('en-US',{maximumFractionDigits:2});
+ document.getElementById('fxText').textContent=(Number(v.fx)||0).toLocaleString('zh-TW',{maximumFractionDigits:3});
 }
-function refreshSelect(){
- const s=document.getElementById('txBucket');
- s.innerHTML=data.buckets.map(b=>`<option value="${b.id}">${esc(b.name)}</option>`).join('');
-}
-function openTx(id){
- document.getElementById('txDate').value=new Date().toISOString().slice(0,10);
- document.getElementById('txAmount').value='';
- document.getElementById('txNote').value='';
- if(id) document.getElementById('txBucket').value=id;
- document.getElementById('txModal').classList.add('show');
-}
-function saveTx(){
- const id=document.getElementById('txBucket').value;
- const b=data.buckets.find(x=>x.id===id);
- const amount=Number(document.getElementById('txAmount').value);
- const type=document.getElementById('txType').value;
- if(!b||!amount||amount<=0)return alert('請輸入金額');
- if(type==='out' && amount>b.balance && !confirm('取用金額大於目前餘額，仍要繼續嗎？'))return;
- b.balance += type==='in'?amount:-amount;
- data.tx.unshift({id:Date.now().toString(),bucketId:id,date:document.getElementById('txDate').value,type,amount,note:document.getElementById('txNote').value.trim()});
- closeModal('txModal');save();
-}
-function openBucket(id){
- const b=data.buckets.find(x=>x.id===id);
- document.getElementById('bucketId').value=b?b.id:'';
- document.getElementById('bucketTitle').textContent=b?'編輯資金桶':'新增資金桶';
- document.getElementById('bucketName').value=b?b.name:'';
- document.getElementById('bucketAccount').value=b?b.account:'';
- document.getElementById('bucketBalance').value=b?b.balance:'';
- document.getElementById('bucketGoal').value=b&&b.goal?b.goal:'';
- document.getElementById('deleteBtn').style.display=b?'block':'none';
- document.getElementById('bucketModal').classList.add('show');
-}
-function saveBucket(){
- const id=document.getElementById('bucketId').value;
- const name=document.getElementById('bucketName').value.trim();
- if(!name)return alert('請輸入名稱');
- const obj={name,account:document.getElementById('bucketAccount').value.trim(),balance:Number(document.getElementById('bucketBalance').value)||0,goal:Number(document.getElementById('bucketGoal').value)||null};
- if(id){const b=data.buckets.find(x=>x.id===id);Object.assign(b,obj)}
- else data.buckets.push({id:'b'+Date.now(),...obj});
- closeModal('bucketModal');save();
-}
-function deleteBucket(){
- const id=document.getElementById('bucketId').value;
- if(!confirm('確定刪除？相關異動紀錄也會一起刪除。'))return;
- data.buckets=data.buckets.filter(b=>b.id!==id);
- data.tx=data.tx.filter(t=>t.bucketId!==id);
- closeModal('bucketModal');save();
-}
-function showDetail(id){
- const b=data.buckets.find(x=>x.id===id); if(!b)return;
- document.getElementById('detailTitle').textContent=b.name;
- document.getElementById('detailInfo').innerHTML=`<div class="bucket-amount" style="text-align:left">${money(b.balance)}</div><div class="note">${b.account?'存放：'+esc(b.account):''}</div>`;
- const txs=data.tx.filter(t=>t.bucketId===id);
- document.getElementById('historyList').innerHTML=txs.length?txs.map(t=>`<div class="tx"><small>${t.date}</small><div>${t.note?esc(t.note):(t.type==='in'?'投入':'取用')}</div><div class="${t.type==='in'?'plus':'minus'}">${t.type==='in'?'+':'−'}${money(t.amount).replace('NT$ ','')}</div></div>`).join(''):'<div class="empty">還沒有異動紀錄</div>';
- document.getElementById('detailModal').classList.add('show');
-}
-function closeModal(id){document.getElementById(id).classList.remove('show')}
-function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function findBucket(id){for(const a of data.accounts){let b=a.buckets.find(x=>x.id===id);if(b)return {a,b}}return null}
+function openTx(id){let f=findBucket(id);if(!f)return;document.getElementById('txTitle').textContent=f.a.name+'｜'+f.b.name;document.getElementById('txBucketId').value=id;document.getElementById('txDate').value=today();document.getElementById('txAmount').value='';document.getElementById('txNote').value='';showM('txModal')}
+function saveTx(){let id=document.getElementById('txBucketId').value,f=findBucket(id),amt=Number(document.getElementById('txAmount').value),type=document.getElementById('txType').value;if(!f||amt<=0)return alert('請輸入金額');if(type==='out'&&amt>f.b.balance&&!confirm('取用金額大於目前餘額，仍要繼續嗎？'))return;f.b.balance+=type==='in'?amt:-amt;data.tx.unshift({id:String(Date.now()),bucketId:id,date:document.getElementById('txDate').value,type,amount:amt,note:document.getElementById('txNote').value.trim()});closeM('txModal');save()}
+function openAccount(id){let a=data.accounts.find(x=>x.id===id);document.getElementById('accountId').value=a?a.id:'';document.getElementById('accountTitle').textContent=a?'編輯帳戶':'新增帳戶';document.getElementById('accountName').value=a?a.name:'';document.getElementById('deleteAccountBtn').style.display=a?'block':'none';showM('accountModal')}
+function saveAccount(){let id=document.getElementById('accountId').value,n=document.getElementById('accountName').value.trim();if(!n)return alert('請輸入帳戶名稱');if(id)data.accounts.find(x=>x.id===id).name=n;else data.accounts.push({id:'a'+Date.now(),name:n,buckets:[]});closeM('accountModal');save()}
+function deleteAccount(){let id=document.getElementById('accountId').value,a=data.accounts.find(x=>x.id===id);if(!a)return;if(!confirm('確定刪除「'+a.name+'」？底下的資金桶與紀錄也會刪除。'))return;let ids=a.buckets.map(b=>b.id);data.accounts=data.accounts.filter(x=>x.id!==id);data.tx=data.tx.filter(t=>!ids.includes(t.bucketId));closeM('accountModal');save()}
+function openBucket(id,accountId){let a=data.accounts.find(x=>x.id===accountId),b=a&&a.buckets.find(x=>x.id===id);document.getElementById('bucketId').value=b?b.id:'';document.getElementById('bucketAccountId').value=accountId;document.getElementById('bucketTitle').textContent=b?'編輯資金用途':'新增資金用途';document.getElementById('bucketName').value=b?b.name:'';document.getElementById('bucketBalance').value=b?b.balance:'';document.getElementById('deleteBucketBtn').style.display=b?'block':'none';showM('bucketModal')}
+function saveBucket(){let id=document.getElementById('bucketId').value,aid=document.getElementById('bucketAccountId').value,a=data.accounts.find(x=>x.id===aid),name=document.getElementById('bucketName').value.trim(),bal=Number(document.getElementById('bucketBalance').value)||0;if(!a||!name)return alert('請輸入名稱');if(id){let b=a.buckets.find(x=>x.id===id);b.name=name;b.balance=bal}else a.buckets.push({id:'b'+Date.now(),name,balance:bal});closeM('bucketModal');save()}
+function deleteBucket(){let id=document.getElementById('bucketId').value,aid=document.getElementById('bucketAccountId').value,a=data.accounts.find(x=>x.id===aid);if(!a||!confirm('確定刪除這個資金用途？'))return;a.buckets=a.buckets.filter(b=>b.id!==id);data.tx=data.tx.filter(t=>t.bucketId!==id);closeM('bucketModal');save()}
+function showDetail(id){let f=findBucket(id);if(!f)return;document.getElementById('detailTitle').textContent=f.a.name+'｜'+f.b.name;document.getElementById('detailBalance').innerHTML='<div style="font-size:24px;font-weight:850">'+money(f.b.balance)+'</div>';let tx=data.tx.filter(t=>t.bucketId===id);document.getElementById('detailHistory').innerHTML=tx.length?tx.map(t=>`<div class="tx"><small>${t.date}</small><div>${esc(t.note||(t.type==='in'?'投入':'取用'))}</div><div class="${t.type==='in'?'plus':'minus'}">${t.type==='in'?'+':'−'}${money(t.amount).replace('NT$ ','')}</div></div>`).join(''):'<div class="empty">還沒有異動紀錄</div>';showM('detailModal')}
+function openVtTrade(){document.getElementById('vtDate').value=today();document.getElementById('vtQty').value='';document.getElementById('vtNote').value='';showM('vtTradeModal')}
+function saveVtTrade(){let q=Number(document.getElementById('vtQty').value),type=document.getElementById('vtType').value;if(q<=0)return alert('請輸入股數');if(type==='sell'&&q>data.vt.shares&&!confirm('賣出股數大於目前持有股數，仍要繼續嗎？'))return;data.vt.shares+=type==='buy'?q:-q;data.vt.history.unshift({date:document.getElementById('vtDate').value,type,qty:q,note:document.getElementById('vtNote').value.trim()});closeM('vtTradeModal');save()}
+function openVtSettings(){document.getElementById('vtSetShares').value=data.vt.shares;document.getElementById('vtSetPrice').value=data.vt.price||'';document.getElementById('vtSetFx').value=data.vt.fx||'';showM('vtSettingsModal')}
+function saveVtSettings(){data.vt.shares=Number(document.getElementById('vtSetShares').value)||0;data.vt.price=Number(document.getElementById('vtSetPrice').value)||0;data.vt.fx=Number(document.getElementById('vtSetFx').value)||0;closeM('vtSettingsModal');save()}
+function showVtHistory(){let h=data.vt.history;document.getElementById('vtHistory').innerHTML=h.length?h.map(t=>`<div class="tx"><small>${t.date}</small><div>${esc(t.note||(t.type==='buy'?'買入':'賣出'))}</div><div class="${t.type==='buy'?'plus':'minus'}">${t.type==='buy'?'+':'−'}${t.qty} 股</div></div>`).join(''):'<div class="empty">目前持有 '+data.vt.shares+' 股<br>尚沒有新增的股數異動紀錄</div>';showM('vtHistoryModal')}
+function showM(id){document.getElementById(id).classList.add('show')}function closeM(id){document.getElementById(id).classList.remove('show')}
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')}));
 render();
 </script>

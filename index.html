@@ -51,30 +51,38 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:0 20px 25px}
 .bucketAmount{font-size:17px;font-weight:800;min-width:88px;text-align:right;font-variant-numeric:tabular-nums}
 .actions{display:none}
 
+
+/* v4: quiet bonus pocket */
+header .eyebrow{margin-bottom:16px}
+.bonusCard{width:100%;border:0;background:rgba(255,255,255,.09);color:#fff;border-radius:14px;margin-top:10px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;text-align:left}
+.bonusCard span:first-child{display:flex;align-items:baseline;gap:12px}.bonusCard small{opacity:.68;font-size:12px}.bonusCard b{font-size:17px;font-variant-numeric:tabular-nums}.bonusAction{font-size:13px;opacity:.72;font-weight:800}
+.bonusCurrent{background:var(--soft);border-radius:14px;padding:13px;margin-bottom:8px}.bonusCurrent small{display:block;color:var(--muted);font-size:12px}.bonusCurrent strong{display:block;font-size:25px;margin-top:3px}
+
 </style>
 </head>
 <body>
 <div class="app">
 <header>
- <div class="eyebrow">MONEY MAP</div><h1>我的資產</h1>
- <div class="hero"><small>現金合計</small><div class="num" id="cashTotal">NT$ 0</div></div>
+ <div class="eyebrow">MONEY MAP</div>
+ <div class="hero"><small>手上現金｜郵局＋中信等帳戶</small><div class="num" id="cashTotal">NT$ 0</div></div>
  <div class="vtHero">
-  <div class="vtTop"><strong>VT 長期資產</strong><span class="vtShares" id="vtShares">42 股</span></div>
+  <div class="vtTop"><strong>VT 長期資產</strong><span class="vtShares" id="vtShares">44 股</span></div>
   <div class="vtGrid">
    <div class="mini"><small>預估台幣市值</small><b id="vtValue">NT$ 0</b></div>
    <div class="mini"><small>距 100 萬還差</small><b id="vtRemain">NT$ 1,000,000</b></div>
-   <div class="mini"><small>股價</small><b id="vtPriceText">US$ 0</b></div>
-   <div class="mini"><small>匯率</small><b id="fxText">0</b></div>
+   <div class="mini"><small>參考股價</small><b id="vtPriceText">US$ 0</b></div>
+   <div class="mini"><small>參考匯率</small><b id="fxText">0</b></div>
   </div>
   <div class="vtButtons"><button onclick="openVtTrade()">＋ 買入股數</button><button onclick="openVtSettings()">更新股價／匯率</button><button onclick="showVtHistory()">紀錄</button></div>
  </div>
+ <button class="bonusCard" onclick="openBonus()"><span><small>獎金小金庫</small><b id="bonusTotal">0</b></span><span class="bonusAction">＋ / −</span></button>
 </header>
 
 <main>
- <div class="sectionHead"><h2>金融帳戶</h2><button class="textBtn" onclick="openAccount()">＋ 帳戶</button></div>
+ <div class="sectionHead"><h2>現金帳戶</h2><button class="textBtn" onclick="openAccount()">＋ 帳戶</button></div>
  <div id="accounts"></div>
 </main>
-<footer>好好理財，日日進財。</footer>
+<footer>帳戶看現金，VT看股數。兩套資產，分開計算。</footer>
 </div>
 
 <div class="modal" id="txModal"><div class="sheet">
@@ -125,6 +133,17 @@ footer{text-align:center;color:var(--muted);font-size:12px;padding:0 20px 25px}
  <h3>VT 股數紀錄</h3><div id="vtHistory"></div><button class="secondary" onclick="closeM('vtHistoryModal')">關閉</button>
 </div></div>
 
+
+<div class="modal" id="bonusModal"><div class="sheet">
+ <h3>獎金小金庫</h3>
+ <div class="bonusCurrent"><small>目前可以開心花</small><strong id="bonusCurrent">0</strong></div>
+ <div class="row"><div><label>日期</label><input type="date" id="bonusDate"></div><div><label>動作</label><select id="bonusType"><option value="in">增加 ＋</option><option value="out">花掉 −</option></select></div></div>
+ <label>金額</label><input type="number" id="bonusAmount" inputmode="numeric" placeholder="例如 1000">
+ <label>備註（可不填）</label><input id="bonusNote" placeholder="台股、發票、公司獎金……">
+ <div class="hint">這只是你的可花額度，不會再加進上面的現金合計。</div>
+ <button class="primary" onclick="saveBonus()">儲存</button><button class="secondary" onclick="closeM('bonusModal')">取消</button>
+</div></div>
+
 <script>
 const KEY='moneyMap_v2';
 let data=JSON.parse(localStorage.getItem(KEY)||'null')||{
@@ -133,13 +152,15 @@ let data=JSON.parse(localStorage.getItem(KEY)||'null')||{
   {id:'ctbc',name:'中信',buckets:[{id:'cash',name:'現金',balance:500000},{id:'startup',name:'創業基金',balance:55000},{id:'free',name:'自由',balance:122000}]}
  ],
  tx:[],
- vt:{shares:44,price:0,fx:0,goal:1000000,history:[]}
+ vt:{shares:44,price:0,fx:0,goal:1000000,history:[]},
+ bonus:{balance:0,history:[]}
 };
 function money(n){return Math.round(Number(n)||0).toLocaleString('zh-TW')}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function today(){let d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
 function render(){
+ if(!data.bonus)data.bonus={balance:0,history:[]};
  let cash=0,wrap=document.getElementById('accounts');wrap.innerHTML='';
  data.accounts.forEach(a=>{
    let at=a.buckets.reduce((s,b)=>s+(Number(b.balance)||0),0);cash+=at;
@@ -155,6 +176,7 @@ function render(){
  document.getElementById('vtRemain').textContent=money(Math.max(0,(v.goal||1000000)-value));
  document.getElementById('vtPriceText').textContent='US$ '+(Number(v.price)||0).toLocaleString('en-US',{maximumFractionDigits:2});
  document.getElementById('fxText').textContent=(Number(v.fx)||0).toLocaleString('zh-TW',{maximumFractionDigits:3});
+ document.getElementById('bonusTotal').textContent=money(data.bonus.balance||0);
 }
 function findBucket(id){for(const a of data.accounts){let b=a.buckets.find(x=>x.id===id);if(b)return {a,b}}return null}
 function openTx(id){let f=findBucket(id);if(!f)return;document.getElementById('txTitle').textContent=f.a.name+'｜'+f.b.name;document.getElementById('txBucketId').value=id;document.getElementById('txDate').value=today();document.getElementById('txAmount').value='';document.getElementById('txNote').value='';showM('txModal')}
@@ -171,6 +193,8 @@ function saveVtTrade(){let q=Number(document.getElementById('vtQty').value),type
 function openVtSettings(){document.getElementById('vtSetShares').value=data.vt.shares;document.getElementById('vtSetPrice').value=data.vt.price||'';document.getElementById('vtSetFx').value=data.vt.fx||'';showM('vtSettingsModal')}
 function saveVtSettings(){data.vt.shares=Number(document.getElementById('vtSetShares').value)||0;data.vt.price=Number(document.getElementById('vtSetPrice').value)||0;data.vt.fx=Number(document.getElementById('vtSetFx').value)||0;closeM('vtSettingsModal');save()}
 function showVtHistory(){let h=data.vt.history;document.getElementById('vtHistory').innerHTML=h.length?h.map(t=>`<div class="tx"><small>${t.date}</small><div>${esc(t.note||(t.type==='buy'?'買入':'賣出'))}</div><div class="${t.type==='buy'?'plus':'minus'}">${t.type==='buy'?'+':'−'}${t.qty} 股</div></div>`).join(''):'<div class="empty">目前持有 '+data.vt.shares+' 股<br>尚沒有新增的股數異動紀錄</div>';showM('vtHistoryModal')}
+function openBonus(){if(!data.bonus)data.bonus={balance:0,history:[]};document.getElementById('bonusCurrent').textContent=money(data.bonus.balance||0);document.getElementById('bonusDate').value=today();document.getElementById('bonusAmount').value='';document.getElementById('bonusNote').value='';showM('bonusModal')}
+function saveBonus(){if(!data.bonus)data.bonus={balance:0,history:[]};let amt=Number(document.getElementById('bonusAmount').value),type=document.getElementById('bonusType').value;if(amt<=0)return alert('請輸入金額');if(type==='out'&&amt>data.bonus.balance&&!confirm('花掉的金額大於目前獎金額度，仍要繼續嗎？'))return;data.bonus.balance+=type==='in'?amt:-amt;data.bonus.history.unshift({date:document.getElementById('bonusDate').value,type,amount:amt,note:document.getElementById('bonusNote').value.trim()});closeM('bonusModal');save()}
 function showM(id){document.getElementById(id).classList.add('show')}function closeM(id){document.getElementById(id).classList.remove('show')}
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')}));
 render();

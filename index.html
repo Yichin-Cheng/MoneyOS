@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#17324d">
-<title>Money Map｜我的資產</title>
+<title>Money Map｜我的荷包</title>
 <style>
 :root{--navy:#17324d;--navy2:#315d7d;--cream:#f6f3ed;--card:#fff;--text:#202a33;--muted:#77818a;--line:#e1e5e8;--soft:#eef3f6;--green:#28745e;--red:#b35656}
 *{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif}
@@ -64,7 +64,7 @@ header .eyebrow{margin-bottom:16px}
 <div class="app">
 <header>
  <div class="eyebrow">MONEY MAP</div>
- <div class="hero"><small>手上現金｜郵局＋中信等帳戶</small><div class="num" id="cashTotal">NT$ 0</div></div>
+ <div class="hero"><small>郵局+中信</small><div class="num" id="cashTotal">NT$ 0</div></div>
  <div class="vtHero">
   <div class="vtTop"><strong>VT 長期資產</strong><span class="vtShares" id="vtShares">44 股</span></div>
   <div class="vtGrid">
@@ -75,14 +75,14 @@ header .eyebrow{margin-bottom:16px}
   </div>
   <div class="vtButtons"><button onclick="openVtTrade()">＋ 買入股數</button><button onclick="openVtSettings()">更新股價／匯率</button><button onclick="showVtHistory()">紀錄</button></div>
  </div>
- <button class="bonusCard" onclick="openBonus()"><span><small>獎金小金庫</small><b id="bonusTotal">0</b></span><span class="bonusAction">＋ / −</span></button>
+ <button class="bonusCard" onclick="openBonus()"><span><small>獎金收入</small><b id="bonusTotal">0</b></span><span class="bonusAction">＋ / −</span></button>
 </header>
 
 <main>
- <div class="sectionHead"><h2>現金帳戶</h2><button class="textBtn" onclick="openAccount()">＋ 帳戶</button></div>
+ <div class="sectionHead"><h2>戶頭</h2><button class="textBtn" onclick="openAccount()">＋ 帳戶</button></div>
  <div id="accounts"></div>
 </main>
-<footer>帳戶看現金，VT看股數。兩套資產，分開計算。</footer>
+<footer>日日理財，常常進財。</footer>
 </div>
 
 <div class="modal" id="txModal"><div class="sheet">

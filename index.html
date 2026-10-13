@@ -30,7 +30,7 @@ main{padding:18px}.sectionHead{display:flex;justify-content:space-between;align-
 label{display:block;color:var(--muted);font-size:13px;margin:11px 0 5px}input,select{width:100%;padding:12px;border:1px solid #d8dde1;border-radius:12px;background:#fff;font:inherit}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.primary,.secondary{width:100%;border:0;border-radius:13px;padding:12px;font-weight:800;margin-top:13px}.primary{background:var(--navy);color:#fff}.secondary{background:var(--soft);color:var(--text);margin-top:7px}.danger{color:var(--red)}
 .history{margin-top:17px;border-top:1px solid var(--line);padding-top:12px}.tx{display:grid;grid-template-columns:72px 1fr auto;gap:7px;padding:9px 0;border-bottom:1px solid #eef0f1;font-size:13px}.tx small{color:var(--muted)}.plus{color:var(--green);font-weight:800}.minus{color:var(--red);font-weight:800}
-.hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:7px}
+.editRecord{border:0;background:var(--soft);color:var(--navy);border-radius:8px;padding:6px 9px;margin-left:8px;font-weight:700;cursor:pointer}.hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:7px}
 footer{text-align:center;color:var(--muted);font-size:12px;padding:0 20px 25px}
 
 /* v3: calm, everyday-use layout */
@@ -141,7 +141,24 @@ header .eyebrow{margin-bottom:16px}
  <div id="bonusCategoryWrap"><label>來源</label><select id="bonusCategory"><option value="台股">台股</option><option value="股息">股息</option><option value="其他">其他</option></select></div><label>金額</label><input type="number" id="bonusAmount" inputmode="numeric" placeholder="例如 1000">
  <label>備註（可不填）</label><input id="bonusNote" placeholder="備註（選填）">
  <div class="hint">這只是你的可用額度，不會再加進上面的現金合計。</div>
- <div class="history"><strong>收入累計</strong><div id="bonusSummary"></div></div><div class="history"><strong>異動明細</strong><div id="bonusHistory"></div></div><button class="primary" onclick="saveBonus()">儲存</button><button class="secondary" onclick="closeM('bonusModal')">取消</button>
+ <div class="history"><strong>收入累計</strong><div id="bonusSummary"></div></div><button class="secondary" onclick="openBonusHistory()">查看全部異動明細 ›</button><button class="primary" onclick="saveBonus()">儲存</button><button class="secondary" onclick="closeM('bonusModal')">取消</button>
+</div></div>
+
+
+<div class="modal" id="bonusHistoryModal"><div class="sheet">
+<h3>獎金異動明細</h3><div id="bonusHistory"></div>
+<button class="secondary" onclick="closeM('bonusHistoryModal')">關閉</button>
+</div></div>
+<div class="modal" id="bonusEditModal"><div class="sheet">
+<h3>修改異動紀錄</h3>
+<label>日期</label><input type="date" id="bonusEditDate">
+<label>動作</label><select id="bonusEditType" onchange="updateBonusEditCategory()"><option value="in">存入 ＋</option><option value="out">取出 −</option></select>
+<div id="bonusEditCategoryWrap"><label>來源</label><select id="bonusEditCategory"><option value="台股">台股</option><option value="股息">股息</option><option value="其他">其他</option><option value="未分類">未分類</option></select></div>
+<label>金額</label><input type="number" min="0" step="any" id="bonusEditAmount">
+<label>備註</label><input id="bonusEditNote">
+<button class="primary" onclick="saveBonusEdit()">儲存修改</button>
+<button class="secondary danger" onclick="deleteBonusEntry()">刪除這筆紀錄</button>
+<button class="secondary" onclick="closeM('bonusEditModal')">取消</button>
 </div></div>
 
 <script>
@@ -197,8 +214,31 @@ function renderBonusDetails(){
  const b=data.bonus, sums={'台股':0,'股息':0,'其他':0,'未分類':0};
  (b.history||[]).forEach(t=>{if(t.type==='in'){let c=['台股','股息','其他'].includes(t.category)?t.category:'未分類';sums[c]+=Number(t.amount)||0}});
  document.getElementById('bonusSummary').innerHTML=Object.entries(sums).map(([k,v])=>`<div class="tx"><span>${k}</span><span></span><b>${money(v)}</b></div>`).join('');
- document.getElementById('bonusHistory').innerHTML=(b.history||[]).length?b.history.map(t=>`<div class="tx"><small>${esc(t.date)}</small><div>${esc(t.type==='in'?(t.category||'未分類'):'取出')}${t.note?'｜'+esc(t.note):''}</div><div class="${t.type==='in'?'plus':'minus'}">${t.type==='in'?'+':'−'}${money(t.amount)}</div></div>`).join(''):'<div class="empty">尚無紀錄</div>';
+ document.getElementById('bonusHistory').innerHTML=(b.history||[]).length?b.history.map((t,i)=>`<div class="tx"><small>${esc(t.date)}</small><div>${esc(t.type==='in'?(t.category||'未分類'):'取出')}${t.note?'｜'+esc(t.note):''}</div><div><span class="${t.type==='in'?'plus':'minus'}">${t.type==='in'?'+':'−'}${money(t.amount)}</span><button class="editRecord" onclick="openBonusEdit(${i})">編輯</button></div></div>`).join(''):'<div class="empty">尚無紀錄</div>';
 }
+function openBonusHistory(){renderBonusDetails();showM('bonusHistoryModal')}
+let bonusEditIndex=-1;
+function updateBonusEditCategory(){document.getElementById('bonusEditCategoryWrap').style.display=document.getElementById('bonusEditType').value==='in'?'block':'none'}
+function openBonusEdit(i){let t=data.bonus.history[i];if(!t)return;bonusEditIndex=i;
+ document.getElementById('bonusEditDate').value=t.date||today();document.getElementById('bonusEditType').value=t.type;
+ document.getElementById('bonusEditCategory').value=['台股','股息','其他'].includes(t.category)?t.category:'未分類';
+ document.getElementById('bonusEditAmount').value=t.amount;document.getElementById('bonusEditNote').value=t.note||'';
+ updateBonusEditCategory();showM('bonusEditModal');}
+function bonusSigned(t){return (t.type==='in'?1:-1)*Number(t.amount||0)}
+function saveBonusEdit(){let old=data.bonus.history[bonusEditIndex];if(!old)return;
+ let amt=Number(document.getElementById('bonusEditAmount').value),date=document.getElementById('bonusEditDate').value;
+ if(!Number.isFinite(amt)||amt<=0||!date)return alert('請輸入有效日期與正確金額');
+ let next={...old,date,type:document.getElementById('bonusEditType').value,amount:amt,category:document.getElementById('bonusEditType').value==='in'?document.getElementById('bonusEditCategory').value:null,note:document.getElementById('bonusEditNote').value.trim()};
+ let balance=data.bonus.balance-bonusSigned(old)+bonusSigned(next);
+ if(balance<0&&!confirm('修改後可用餘額會是負數，仍要儲存嗎？'))return;
+ data.bonus.balance=balance;data.bonus.history[bonusEditIndex]=next;
+ closeM('bonusEditModal');save();renderBonusDetails();}
+function deleteBonusEntry(){let old=data.bonus.history[bonusEditIndex];if(!old)return;
+ if(!confirm('確定刪除這筆異動紀錄？刪除後會同步調整可用餘額。'))return;
+ let balance=data.bonus.balance-bonusSigned(old);
+ if(balance<0&&!confirm('刪除後可用餘額會是負數，仍要刪除嗎？'))return;
+ data.bonus.balance=balance;data.bonus.history.splice(bonusEditIndex,1);
+ closeM('bonusEditModal');save();renderBonusDetails();}
 function openBonus(){if(!data.bonus)data.bonus={balance:0,history:[]};document.getElementById('bonusCurrent').textContent=money(data.bonus.balance||0);document.getElementById('bonusDate').value=today();document.getElementById('bonusAmount').value='';document.getElementById('bonusNote').value='';document.getElementById('bonusType').value='in';document.getElementById('bonusCategory').value='台股';updateBonusCategory();renderBonusDetails();showM('bonusModal')}
 function updateBonusCategory(){document.getElementById('bonusCategoryWrap').style.display=document.getElementById('bonusType').value==='in'?'block':'none'}
 document.getElementById('bonusType').addEventListener('change',updateBonusCategory);

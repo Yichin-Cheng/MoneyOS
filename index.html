@@ -75,7 +75,7 @@ header .eyebrow{margin-bottom:16px}
   </div>
   <div class="vtButtons"><button onclick="openVtTrade()">＋ 買入股數</button><button onclick="openVtSettings()">更新股價／匯率</button><button onclick="showVtHistory()">紀錄</button></div>
  </div>
- <button class="bonusCard" onclick="openBonus()"><span><small>獎金收入</small><b id="bonusTotal">0</b></span><span class="bonusAction">＋ / −</span></button>
+ <button class="bonusCard" onclick="openBonus()"><span><small>獎金收入</small><b id="bonusTotal">0</b></span><span class="bonusAction">存／取</span></button>
 </header>
 
 <main>
@@ -136,12 +136,12 @@ header .eyebrow{margin-bottom:16px}
 
 <div class="modal" id="bonusModal"><div class="sheet">
  <h3>獎金小金庫</h3>
- <div class="bonusCurrent"><small>目前可以開心花</small><strong id="bonusCurrent">0</strong></div>
- <div class="row"><div><label>日期</label><input type="date" id="bonusDate"></div><div><label>動作</label><select id="bonusType"><option value="in">增加 ＋</option><option value="out">花掉 −</option></select></div></div>
- <label>金額</label><input type="number" id="bonusAmount" inputmode="numeric" placeholder="例如 1000">
- <label>備註（可不填）</label><input id="bonusNote" placeholder="台股、發票、公司獎金……">
- <div class="hint">這只是你的可花額度，不會再加進上面的現金合計。</div>
- <button class="primary" onclick="saveBonus()">儲存</button><button class="secondary" onclick="closeM('bonusModal')">取消</button>
+ <div class="bonusCurrent"><small>目前可用餘額</small><strong id="bonusCurrent">0</strong></div>
+ <div class="row"><div><label>日期</label><input type="date" id="bonusDate"></div><div><label>動作</label><select id="bonusType"><option value="in">存入 ＋</option><option value="out">取出 −</option></select></div></div>
+ <div id="bonusCategoryWrap"><label>來源</label><select id="bonusCategory"><option value="台股">台股</option><option value="股息">股息</option><option value="其他">其他</option></select></div><label>金額</label><input type="number" id="bonusAmount" inputmode="numeric" placeholder="例如 1000">
+ <label>備註（可不填）</label><input id="bonusNote" placeholder="備註（選填）">
+ <div class="hint">這只是你的可用額度，不會再加進上面的現金合計。</div>
+ <div class="history"><strong>收入累計</strong><div id="bonusSummary"></div></div><div class="history"><strong>異動明細</strong><div id="bonusHistory"></div></div><button class="primary" onclick="saveBonus()">儲存</button><button class="secondary" onclick="closeM('bonusModal')">取消</button>
 </div></div>
 
 <script>
@@ -166,7 +166,7 @@ function render(){
    let at=a.buckets.reduce((s,b)=>s+(Number(b.balance)||0),0);cash+=at;
    let box=document.createElement('section');box.className='account';
    box.innerHTML=`<div class="accountHead"><div class="accountName">${esc(a.name)} <button class="tinyPlus" onclick="event.stopPropagation();openBucket(null,'${a.id}')" aria-label="新增用途">＋</button></div><div class="accountTotal"><small>帳戶合計</small><b>${money(at)}</b><button class="dots" onclick="openAccount('${a.id}')" aria-label="帳戶設定">⋯</button></div></div>
-   <div>${a.buckets.length?a.buckets.map(b=>`<div class="bucket clickable" onclick="openTx('${b.id}')"><div class="bucketTop"><div class="bucketName">${esc(b.name)}</div><div class="bucketRight"><div class="bucketAmount">${money(b.balance)}</div><button class="dots" onclick="event.stopPropagation();openBucket('${b.id}','${a.id}')" aria-label="設定">⋯</button></div></div></div>`).join(''):'<div class="empty">還沒有資金用途</div>'}</div>`;
+   <div>${a.buckets.length?a.buckets.map(b=>`<div class="bucket clickable" onclick="openBucket('${b.id}','${a.id}')"><div class="bucketTop"><div class="bucketName">${esc(b.name)}</div><div class="bucketRight"><div class="bucketAmount">${money(b.balance)}</div><button class="dots" onclick="event.stopPropagation();openBucket('${b.id}','${a.id}')" aria-label="設定">⋯</button></div></div></div>`).join(''):'<div class="empty">還沒有資金用途</div>'}</div>`;
    wrap.appendChild(box);
  });
  document.getElementById('cashTotal').textContent=money(cash);
@@ -193,8 +193,16 @@ function saveVtTrade(){let q=Number(document.getElementById('vtQty').value),type
 function openVtSettings(){document.getElementById('vtSetShares').value=data.vt.shares;document.getElementById('vtSetPrice').value=data.vt.price||'';document.getElementById('vtSetFx').value=data.vt.fx||'';showM('vtSettingsModal')}
 function saveVtSettings(){data.vt.shares=Number(document.getElementById('vtSetShares').value)||0;data.vt.price=Number(document.getElementById('vtSetPrice').value)||0;data.vt.fx=Number(document.getElementById('vtSetFx').value)||0;closeM('vtSettingsModal');save()}
 function showVtHistory(){let h=data.vt.history;document.getElementById('vtHistory').innerHTML=h.length?h.map(t=>`<div class="tx"><small>${t.date}</small><div>${esc(t.note||(t.type==='buy'?'買入':'賣出'))}</div><div class="${t.type==='buy'?'plus':'minus'}">${t.type==='buy'?'+':'−'}${t.qty} 股</div></div>`).join(''):'<div class="empty">目前持有 '+data.vt.shares+' 股<br>尚沒有新增的股數異動紀錄</div>';showM('vtHistoryModal')}
-function openBonus(){if(!data.bonus)data.bonus={balance:0,history:[]};document.getElementById('bonusCurrent').textContent=money(data.bonus.balance||0);document.getElementById('bonusDate').value=today();document.getElementById('bonusAmount').value='';document.getElementById('bonusNote').value='';showM('bonusModal')}
-function saveBonus(){if(!data.bonus)data.bonus={balance:0,history:[]};let amt=Number(document.getElementById('bonusAmount').value),type=document.getElementById('bonusType').value;if(amt<=0)return alert('請輸入金額');if(type==='out'&&amt>data.bonus.balance&&!confirm('花掉的金額大於目前獎金額度，仍要繼續嗎？'))return;data.bonus.balance+=type==='in'?amt:-amt;data.bonus.history.unshift({date:document.getElementById('bonusDate').value,type,amount:amt,note:document.getElementById('bonusNote').value.trim()});closeM('bonusModal');save()}
+function renderBonusDetails(){
+ const b=data.bonus, sums={'台股':0,'股息':0,'其他':0,'未分類':0};
+ (b.history||[]).forEach(t=>{if(t.type==='in'){let c=['台股','股息','其他'].includes(t.category)?t.category:'未分類';sums[c]+=Number(t.amount)||0}});
+ document.getElementById('bonusSummary').innerHTML=Object.entries(sums).map(([k,v])=>`<div class="tx"><span>${k}</span><span></span><b>${money(v)}</b></div>`).join('');
+ document.getElementById('bonusHistory').innerHTML=(b.history||[]).length?b.history.map(t=>`<div class="tx"><small>${esc(t.date)}</small><div>${esc(t.type==='in'?(t.category||'未分類'):'取出')}${t.note?'｜'+esc(t.note):''}</div><div class="${t.type==='in'?'plus':'minus'}">${t.type==='in'?'+':'−'}${money(t.amount)}</div></div>`).join(''):'<div class="empty">尚無紀錄</div>';
+}
+function openBonus(){if(!data.bonus)data.bonus={balance:0,history:[]};document.getElementById('bonusCurrent').textContent=money(data.bonus.balance||0);document.getElementById('bonusDate').value=today();document.getElementById('bonusAmount').value='';document.getElementById('bonusNote').value='';document.getElementById('bonusType').value='in';document.getElementById('bonusCategory').value='台股';updateBonusCategory();renderBonusDetails();showM('bonusModal')}
+function updateBonusCategory(){document.getElementById('bonusCategoryWrap').style.display=document.getElementById('bonusType').value==='in'?'block':'none'}
+document.getElementById('bonusType').addEventListener('change',updateBonusCategory);
+function saveBonus(){if(!data.bonus)data.bonus={balance:0,history:[]};let amt=Number(document.getElementById('bonusAmount').value),type=document.getElementById('bonusType').value;if(amt<=0)return alert('請輸入金額');if(type==='out'&&amt>data.bonus.balance&&!confirm('取出金額大於目前獎金額度，仍要繼續嗎？'))return;data.bonus.balance+=type==='in'?amt:-amt;data.bonus.history.unshift({date:document.getElementById('bonusDate').value,type,amount:amt,category:type==='in'?document.getElementById('bonusCategory').value:null,note:document.getElementById('bonusNote').value.trim()});closeM('bonusModal');save()}
 function showM(id){document.getElementById(id).classList.add('show')}function closeM(id){document.getElementById(id).classList.remove('show')}
 document.querySelectorAll('.modal').forEach(m=>m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('show')}));
 render();
